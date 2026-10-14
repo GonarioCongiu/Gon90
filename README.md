@@ -212,6 +212,7 @@ folio/
 
 ## Problemi noti e soluzioni
 
+- **Compilazione: ``linker `x86_64-linux-gnu-gcc` not found``** (oppure `mold`, `lld`, `sccache` non trovati): cargo eredita un linker o dei rustflag pensati per un altro sistema, di solito da `~/.cargo/config.toml` o da una variabile d'ambiente. L'installer lo rileva e compila Folio con `cc` in un ambiente neutro, senza toccare i tuoi file. Per trovare l'impostazione: `grep -rn 'linker\|rustflags\|rustc-wrapper' ~/.cargo/config* ~/.local/src/.cargo 2>/dev/null; env | grep -iE 'linker|rustflags|rustc_wrapper'`. Su Arch/CachyOS il linker C si chiama semplicemente `cc` (pacchetto `gcc`).
 - **I gesti non funzionano**: `hyprctl plugin list` deve elencare `hyprgrass`; altrimenti `hyprpm update && hyprpm enable hyprgrass && hyprpm reload`. Al primo tentativo tieni a portata una tastiera, come consiglia l'autore di hyprgrass.
 - **Nessuna barra del titolo**: senza hyprbars caricato Folio passa da solo alla **pillola**. Per forzarla: `[chrome] mode = "native"`.
 - **Dopo un aggiornamento di Hyprland i plugin non si caricano**: `hyprpm update` ricompila gli header della nuova versione.
