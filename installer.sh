@@ -316,6 +316,94 @@ check_gtk() {
     want_pkg glib2 pango cairo gdk-pixbuf2
 }
 
+# ── Rust: impostazioni di cargo che rompono la compilazione ──
+# Cargo legge .cargo/config(.toml) nella cartella del progetto, in TUTTE le
+# cartelle superiori e in $CARGO_HOME. Un linker scritto per un'altra
+# distribuzione (es. «x86_64-linux-gnu-gcc», il nome Debian/Ubuntu: su Arch
+# si chiama semplicemente gcc/cc) fa fallire ogni compilazione.
+rust_host() { rustc -vV 2>/dev/null | sed -n 's/^host: //p'; }
+
+linker_exists() {
+    if [[ "$1" == */* ]]; then [[ -x "$1" ]]; else command -v "$1" >/dev/null 2>&1; fi
+}
+
+cargo_config_files() {
+    local d="$FOLIO_DIR" f
+    while :; do
+        for f in "$d/.cargo/config.toml" "$d/.cargo/config"; do
+            if [[ -f "$f" ]]; then echo "$f"; fi
+        done
+        [[ "$d" == "/" ]] && break
+        d="$(dirname "$d")"
+    done
+    for f in "${CARGO_HOME:-$HOME/.cargo}/config.toml" "${CARGO_HOME:-$HOME/.cargo}/config"; do
+        if [[ -f "$f" ]]; then echo "$f"; fi
+    done
+    return 0
+}
+
+# Righe "linker<TAB>origine" per ogni linker imposto all'host che non esiste.
+broken_rust_linkers() {
+    local host="$1" f l v src var
+    [[ -n "$host" ]] || return 0
+    var="CARGO_TARGET_$(tr 'a-z.-' 'A-Z__' <<<"$host")_LINKER"
+    v="${!var:-}"
+    if [[ -n "$v" ]] && ! linker_exists "$v"; then printf '%s\t%s\n' "$v" "variabile $var"; fi
+    while IFS= read -r f; do
+        while IFS= read -r l; do
+            if [[ -n "$l" ]] && ! linker_exists "$l"; then printf '%s\t%s\n' "$l" "$f"; fi
+        done < <(awk -v host="$host" '
+            function str(s) {
+                if (match(s, /"[^"]*"/)) return substr(s, RSTART + 1, RLENGTH - 2)
+                if (match(s, /\047[^\047]*\047/)) return substr(s, RSTART + 1, RLENGTH - 2)
+                return ""
+            }
+            /^[[:space:]]*\[/ { sec = $0; gsub(/[[:space:]"\047]/, "", sec); next }
+            /^[[:space:]]*linker[[:space:]]*=/ {
+                if (sec == "[target." host "]" || index(sec, "[target.cfg(") == 1) print str($0)
+                next
+            }
+            /^[[:space:]]*target\./ && /\.linker[[:space:]]*=/ {
+                if (index($0, host) || index($0, "cfg(")) print str($0)
+            }' "$f" 2>/dev/null || true)
+    done < <(cargo_config_files | sort -u)
+    for src in RUSTFLAGS CARGO_BUILD_RUSTFLAGS; do
+        v="${!src:-}"
+        l="$(grep -oE -- '-C ?linker=[^ ]+' <<<"$v" | head -n1 | sed 's/.*linker=//' || true)"
+        if [[ -n "$l" ]] && ! linker_exists "$l"; then printf '%s\t%s\n' "$l" "variabile $src"; fi
+    done
+    return 0
+}
+
+# Righe "problema<TAB>origine" per rustflags e wrapper di cargo che rimandano a
+# strumenti assenti (mold/lld con -fuse-ld, sccache come rustc-wrapper…).
+broken_rust_tools() {
+    local f v t src
+    while IFS= read -r f; do
+        while IFS= read -r t; do
+            if [[ -n "$t" ]] && ! linker_exists "$t" && ! linker_exists "ld.$t"; then
+                printf '%s\t%s\n' "-fuse-ld=$t" "$f"
+            fi
+        done < <(grep -oE 'fuse-ld=[A-Za-z0-9._/-]+' "$f" 2>/dev/null | sed 's/fuse-ld=//' || true)
+        while IFS= read -r t; do
+            if [[ -n "$t" ]] && ! linker_exists "$t"; then printf '%s\t%s\n' "rustc-wrapper «$t»" "$f"; fi
+        done < <(awk '/^[[:space:]]*(rustc-wrapper|rustc-workspace-wrapper)[[:space:]]*=/ {
+                     if (match($0, /"[^"]*"/)) print substr($0, RSTART + 1, RLENGTH - 2) }' "$f" 2>/dev/null || true)
+    done < <(cargo_config_files | sort -u)
+    for src in RUSTFLAGS CARGO_BUILD_RUSTFLAGS; do
+        v="${!src:-}"
+        t="$(grep -oE 'fuse-ld=[A-Za-z0-9._/-]+' <<<"$v" | head -n1 | sed 's/fuse-ld=//' || true)"
+        if [[ -n "$t" ]] && ! linker_exists "$t" && ! linker_exists "ld.$t"; then
+            printf '%s\t%s\n' "-fuse-ld=$t" "variabile $src"
+        fi
+    done
+    for src in RUSTC_WRAPPER CARGO_BUILD_RUSTC_WRAPPER; do
+        v="${!src:-}"
+        if [[ -n "$v" ]] && ! linker_exists "$v"; then printf '%s\t%s\n' "wrapper «$v»" "variabile $src"; fi
+    done
+    return 0
+}
+
 check_rust() {
     local v=""
     if have cargo; then v="$(cargo --version 2>/dev/null | awk '{print $2}')"; fi
@@ -333,6 +421,27 @@ check_rust() {
         fi
     fi
     want_pkg base-devel pkgconf
+    if ! have cc; then
+        info "compilatore C (cc) assente: verrà installato gcc"
+        want_pkg gcc
+    fi
+    # Linker imposti da configurazioni di cargo e che su questo sistema non esistono.
+    local host broken l src
+    host="$(rust_host || true)"
+    broken="$(broken_rust_linkers "$host" || true)"
+    if [[ -n "$broken" ]]; then
+        while IFS=$'\t' read -r l src; do
+            warn "linker di Rust" "«$l» non esiste ($src): per Folio verrà usato «cc»"
+        done <<<"$broken"
+    elif [[ -n "$host" ]]; then
+        ok "linker di Rust" "nessuna impostazione problematica ($host)"
+    fi
+    broken="$(broken_rust_tools || true)"
+    if [[ -n "$broken" ]]; then
+        while IFS=$'\t' read -r l src; do
+            warn "impostazioni di cargo" "$l non disponibile ($src): Folio verrà compilato senza rustflags e wrapper personalizzati"
+        done <<<"$broken"
+    fi
 }
 
 # Touchscreen: dispositivi con INPUT_PROP_DIRECT e assi multitouch (ABS_MT_POSITION_X = bit 53).
@@ -528,9 +637,65 @@ install_fonts() {
 build_folio() {
     step "Compilazione di Folio"
     have cargo || die "cargo non trovato: installa Rust e rilancia"
-    (cd "$FOLIO_DIR" && cargo build --release --locked)
-    local bin="$FOLIO_DIR/target/release/folio"
-    [[ -x "$bin" ]] || die "compilazione non riuscita"
+    if ! have cc; then
+        warn "compilatore C" "cc assente: installo gcc"
+        sudo pacman -S --needed --noconfirm gcc || die "serve gcc (gruppo base-devel)"
+    fi
+    local host
+    host="$(rust_host || true)"
+    [[ -n "$host" ]] || die "rustc non risponde (con rustup: «rustup default stable»)"
+    local tvar
+    tvar="CARGO_TARGET_$(tr 'a-z.-' 'A-Z__' <<<"$host")"
+    # --target-dir esplicito: CARGO_TARGET_DIR o build.target-dir personali non spostano il binario.
+    local args=(build --release --locked --target-dir "$FOLIO_DIR/target")
+    local broken l src
+    broken="$(broken_rust_linkers "$host" || true)"
+    if [[ -n "$broken" ]]; then
+        while IFS=$'\t' read -r l src; do
+            warn "linker di Rust" "«$l» non esiste ($src): per Folio uso «cc»"
+        done <<<"$broken"
+        # --config sulla riga di comando ha la precedenza su file di configurazione e variabili.
+        args+=(--config "target.$host.linker=\"cc\"")
+    fi
+    # Ambiente "neutro": in cargo le variabili hanno la precedenza sui rustflags dei
+    # file di configurazione (gli array dei file invece si sommano, non si sostituiscono).
+    # CARGO_ENCODED_RUSTFLAGS vuota = nessun rustflag; RUSTC_WRAPPER vuota = nessun wrapper.
+    local neutral=(env -u RUSTFLAGS -u CARGO_BUILD_RUSTFLAGS -u CARGO_BUILD_RUSTC_WRAPPER
+        -u "${tvar}_RUSTFLAGS" -u "${tvar}_LINKER"
+        CARGO_ENCODED_RUSTFLAGS= RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER=)
+    local envcmd=()
+    local tools
+    tools="$(broken_rust_tools || true)"
+    if [[ -n "$tools" ]]; then
+        while IFS=$'\t' read -r l src; do
+            warn "impostazioni di cargo" "$l non disponibile ($src): compilo senza rustflags e wrapper personalizzati"
+        done <<<"$tools"
+        envcmd=("${neutral[@]}")
+    fi
+    local blog="$STATE_DIR/build-$STAMP.log"
+    if ! (cd "$FOLIO_DIR" && "${envcmd[@]}" cargo "${args[@]}") 2>&1 | tee "$blog"; then
+        local missing
+        # shellcheck disable=SC2016  # i backtick fanno parte del messaggio di cargo
+        missing="$(grep -oE 'linker `[^`]+` not found' "$blog" | head -n1 | sed -E 's/linker `([^`]+)`.*/\1/' || true)"
+        if [[ "$missing" == "cc" ]]; then
+            sudo pacman -S --needed --noconfirm gcc || true
+        fi
+        # Secondo tentativo con cargo "neutro": linker cc, niente rustflags né wrapper
+        # personalizzati (mold/lld/sccache configurati ma assenti sono le cause tipiche).
+        warn "compilazione" "nuovo tentativo ignorando linker, rustflags e wrapper personalizzati di cargo"
+        if [[ "${args[*]}" != *"target.$host.linker"* ]]; then
+            args+=(--config "target.$host.linker=\"cc\"")
+        fi
+        if ! (cd "$FOLIO_DIR" && "${neutral[@]}" cargo "${args[@]}") 2>&1 | tee -a "$blog"; then
+            die "compilazione non riuscita: dettagli in $blog (controlla anche ~/.cargo/config.toml)"
+        fi
+    fi
+    # Con build.target impostato in una configurazione personale il binario finisce in target/<triple>/.
+    local bin=""
+    for bin in "$FOLIO_DIR/target/release/folio" "$FOLIO_DIR/target/$host/release/folio"; do
+        [[ -x "$bin" ]] && break
+    done
+    [[ -x "$bin" ]] || die "compilazione terminata ma il binario non si trova in $FOLIO_DIR/target"
     if [[ -w "$(dirname "$PREFIX")" || "$PREFIX" == "$HOME"* ]]; then
         install -Dm755 "$bin" "$PREFIX/folio"
     else
