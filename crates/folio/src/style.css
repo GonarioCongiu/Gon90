@@ -1,0 +1,542 @@
+/* ════════════════════════════════════════════════════════════════════
+   FOLIO — foglio di stile
+   Carta, inchiostro e un solo colore d'accento. Filetti da un pixel,
+   occhielli maiuscoli spaziati, titoli in serif, cifre tabellari.
+   I colori (@paper, @ink, @accent…) sono definiti da theme.rs.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Fondamenta ─────────────────────────────────────────────────────── */
+
+window.folio {
+  background: transparent;
+  color: @ink;
+  font-size: 14px;
+  font-feature-settings: "tnum", "ss01", "cv11";
+}
+
+.folio .serif { letter-spacing: -0.01em; }
+
+.kicker {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: @ink_2;
+}
+
+.caption {
+  font-size: 12px;
+  color: @ink_2;
+}
+
+.mono { font-feature-settings: "tnum", "zero"; }
+
+separator.rule {
+  background: @rule;
+  min-height: 1px;
+  min-width: 1px;
+  margin: 0;
+}
+
+.dim { opacity: 0.45; }
+.accent { color: @accent; }
+
+/* Pulsanti: nessuna cornice, solo inchiostro. La pressione "affonda" appena. */
+.folio button.btn,
+.folio popover button.btn {
+  background: none;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  padding: 6px 8px;
+  min-height: 0;
+  min-width: 0;
+  border-radius: 8px;
+  color: inherit;
+  transition: background 160ms ease, transform 120ms ease, color 160ms ease;
+}
+.folio button.btn:hover { background: alpha(@ink, 0.05); }
+.folio button.btn:active { background: alpha(@ink, 0.10); transform: scale(0.96); }
+.folio button.btn:disabled { opacity: 0.35; }
+
+.folio button.text-btn {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  padding: 10px 16px;
+  border: 1px solid @rule_strong;
+  border-radius: 999px;
+}
+.folio button.text-btn.accent {
+  background: @accent;
+  color: @on_accent;
+  border-color: @accent;
+}
+
+.folio button.chip {
+  padding: 6px 12px;
+  border: 1px solid @rule;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.folio button.chip.current {
+  border-color: @ink;
+  background: @ink;
+  color: @paper;
+}
+
+.folio button.close-btn { padding: 10px; border-radius: 999px; }
+
+.glyph { color: inherit; }
+
+/* ── Testata (barra di stato) ───────────────────────────────────────── */
+
+.bar {
+  background: @paper;
+  color: @ink;
+  padding: 0 18px;
+  border-bottom: 1px solid @rule;
+}
+.bar.floating {
+  border: 1px solid @rule;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px -12px @shadow;
+}
+.bar.vertical {
+  padding: 16px 6px;
+  border-bottom: none;
+  border-right: 1px solid @rule;
+}
+.bar .masthead {
+  font-size: 25px;
+  letter-spacing: -0.02em;
+  padding: 0 2px;
+}
+.bar.vertical .masthead { font-size: 30px; }
+
+.bar .ws {
+  font-size: 12px;
+  color: @ink_3;
+  padding: 3px 3px 2px 3px;
+  border-bottom: 2px solid transparent;
+}
+.bar .ws.active {
+  color: @ink;
+  border-bottom-color: @accent;
+}
+.bar .ws.empty { color: @ink_3; }
+.bar .ws-new { color: @ink_3; }
+
+.bar .bar-title {
+  font-size: 18px;
+  font-style: italic;
+  color: @ink;
+}
+.bar .status { color: @ink_2; }
+.bar .status-item.alert { color: @accent; }
+.bar .status-item.accent { color: @accent; }
+.bar .status-value { font-size: 12px; }
+.bar .bar-date { color: @ink_2; }
+.bar .bar-clock {
+  font-size: 14px;
+  font-weight: 600;
+}
+.bar.vertical .bar-clock { font-size: 15px; line-height: 1.1; }
+
+/* ── Dock ───────────────────────────────────────────────────────────── */
+
+.dock {
+  background: alpha(@paper, 0.96);
+  border: 1px solid @rule;
+  border-radius: 22px;
+  padding: 8px 10px;
+  margin: 14px;
+  box-shadow: 0 22px 46px -18px @shadow, 0 1px 0 alpha(@ink, 0.04);
+}
+.dock.vertical { padding: 10px 8px; }
+.dock separator.rule { margin: 8px 4px; }
+
+.dock-item {
+  padding: 6px;
+  border-radius: 14px;
+  transition: background 160ms ease, transform 140ms ease;
+}
+.dock-item:hover { background: alpha(@ink, 0.05); }
+.dock-item:active { transform: scale(0.92); }
+.dock-item.active { background: alpha(@ink, 0.07); }
+.dock-item.unpinned { opacity: 0.88; }
+
+.run-dots { margin-bottom: -3px; }
+.run-dot {
+  min-width: 4px;
+  min-height: 4px;
+  border-radius: 999px;
+  background: @ink_2;
+}
+.dock-item.active .run-dot { background: @accent; min-width: 12px; }
+
+.dock-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: @ink;
+  color: @paper;
+  margin: -2px -4px 0 0;
+}
+.dock-action { color: @ink_2; padding: 12px; }
+
+/* ── Superfici a schermo intero (Indice, Sommario) ──────────────────── */
+
+.sheet {
+  background: @scrim;
+  color: @ink;
+}
+.sheet-header { padding: 34px 56px 18px 56px; }
+.sheet-title {
+  font-size: 64px;
+  letter-spacing: -0.03em;
+}
+.sheet-issue { color: @ink_2; }
+.sheet-content { padding: 8px 56px 72px 56px; }
+
+entry.search, .search {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid @rule_strong;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 2px;
+  min-height: 0;
+  font-size: 16px;
+  color: @ink;
+}
+.search:focus-within { border-bottom-color: @accent; }
+
+.section-head {
+  margin: 34px 0 18px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid @rule;
+}
+.section-number { color: @accent; }
+.section-title { font-size: 30px; letter-spacing: -0.01em; }
+.section-hint { color: @ink_3; }
+
+.letters button.letter-btn {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 6px;
+  color: @ink_2;
+}
+.index-flow { margin-top: 6px; }
+.letter-cell {
+  border-top: 2px solid @ink;
+  padding: 6px 2px 8px 2px;
+}
+.letter {
+  font-size: 52px;
+  color: @ink;
+  margin-top: -6px;
+}
+.letter-count { color: @ink_3; }
+.index flowboxchild { padding: 0; background: none; }
+.empty-note { font-size: 26px; font-style: italic; color: @ink_3; margin: 24px 0; }
+
+/* ── Tile: l'icona-widget ───────────────────────────────────────────── */
+
+.tile {
+  background: @paper_2;
+  color: @ink;
+  border: 1px solid @rule;
+  transition: transform 160ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+.tile:active { transform: scale(0.97); }
+.tile.ink {
+  background: @ink;
+  color: @paper;
+  border-color: @ink;
+}
+.tile.ink .kicker, .tile.ink .t-deck, .tile.ink .t-num, .tile.ink .t-name { color: alpha(@paper, 0.66); }
+.tile.accent {
+  background: @accent;
+  color: @on_accent;
+  border-color: @accent;
+}
+.tile.accent .kicker, .tile.accent .t-deck, .tile.accent .t-num, .tile.accent .t-name { color: alpha(@on_accent, 0.78); }
+
+.t-body { padding: 14px 16px 12px 16px; }
+.tile.small .t-body { padding: 8px 8px 10px 8px; }
+
+.t-kicker { font-size: 9.5px; }
+.t-headline { font-size: 46px; line-height: 1.0; letter-spacing: -0.02em; }
+.tile.wide .t-headline { font-size: 54px; }
+.tile.large .t-headline { font-size: 112px; letter-spacing: -0.04em; }
+.tile.live-music .t-headline, .tile.live-notes .t-headline,
+.tile.live-plain .t-headline, .tile.live-network .t-headline { font-size: 30px; line-height: 1.08; }
+.tile.large.live-music .t-headline, .tile.large.live-notes .t-headline { font-size: 46px; }
+.t-deck { font-size: 12.5px; color: @ink_2; margin-top: 4px; }
+.tile.large .t-deck { font-size: 15px; }
+.t-name { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
+.tile.small .t-name { font-size: 10.5px; font-weight: 500; margin-top: 4px; }
+.t-num { font-size: 9.5px; color: @ink_3; }
+.t-foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid alpha(currentColor, 0.14); }
+.t-progress { margin-top: 10px; color: @accent; }
+.tile.accent .t-progress, .tile.ink .t-progress { color: currentColor; }
+.t-spark { margin-top: 8px; color: currentColor; }
+.t-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: @accent;
+}
+.tile.ink .t-badge, .tile.accent .t-badge { color: currentColor; }
+.t-media { margin-top: 8px; }
+.t-media button.btn { padding: 6px; }
+
+/* Modalità modifica: le tile "respirano" come le icone di iOS. */
+@keyframes folio-wobble {
+  0%   { transform: rotate(-0.55deg); }
+  50%  { transform: rotate(0.55deg); }
+  100% { transform: rotate(-0.55deg); }
+}
+.featured.editing .tile {
+  animation: folio-wobble 320ms ease-in-out infinite;
+  border-style: dashed;
+  border-color: @rule_strong;
+}
+.featured.editing .tile.selected {
+  animation: none;
+  border: 2px solid @accent;
+  box-shadow: 0 18px 40px -16px @shadow;
+}
+.folio button.tile-chip {
+  background: @ink;
+  color: @paper;
+  border-radius: 999px;
+  padding: 6px;
+  margin: -2px;
+  box-shadow: 0 0 0 2px @paper;
+}
+.folio button.tile-chip:hover { background: @accent; color: @on_accent; }
+.tile.ink .tile-chip, .tile.accent .tile-chip { box-shadow: 0 0 0 2px alpha(@paper, 0.4); }
+
+/* Icone delle app: monocrome come fotografie in bianco e nero (vedi theme.icons). */
+.app-icon { transition: filter 200ms ease; }
+
+/* ── Scrivania ──────────────────────────────────────────────────────── */
+
+.desk-item { padding: 0; }
+.desk-tile { box-shadow: 0 16px 36px -20px @shadow; }
+
+/* ── Sommario ───────────────────────────────────────────────────────── */
+
+.ws-strip-large { padding: 6px 56px 22px 56px; }
+.ws-cell { padding: 4px; }
+.ws-thumb {
+  background: @paper_2;
+  border: 1px solid @rule;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.ws-thumb.current { border: 2px solid @ink; }
+.ws-thumb.active { box-shadow: 0 3px 0 -1px @accent; }
+.ws-thumb.new { background: transparent; border-style: dashed; color: @ink_3; }
+.win-rect {
+  background: @paper;
+  border: 1px solid @rule_strong;
+  border-radius: 3px;
+}
+.ws-label { color: @ink_2; }
+.drop-target .ws-label { color: @accent; }
+.drop-target .ws-thumb { border-color: @accent; border-style: dashed; }
+
+.page-head { padding: 22px 56px 6px 56px; }
+.page-title { font-size: 34px; }
+.page-count { color: @ink_2; }
+.ov-stack { padding: 12px 56px; }
+.ov-page { padding: 8px 0; }
+.empty-title { font-size: 46px; font-style: italic; color: @ink_3; }
+
+.ov-card {
+  background: @paper;
+  border: 1px solid @rule;
+  box-shadow: 0 24px 50px -26px @shadow;
+}
+.ov-card.picked { border: 2px solid @accent; }
+.ov-card-head { padding: 10px 10px 10px 14px; border-bottom: 1px solid @rule; }
+.ov-card-title { font-size: 13px; font-weight: 500; }
+.ov-card-body { background: @paper_2; }
+.ov-card-body.placeholder { background: @paper_3; }
+.ov-hint { padding: 12px 56px 26px 56px; color: @ink_3; }
+.ov-hint.accent { color: @accent; }
+
+/* ── Comandi finestra (popup della barra del titolo) ────────────────── */
+
+.chrome-scrim { background: transparent; }
+.chrome-card {
+  background: @paper;
+  border: 1px solid @rule_strong;
+  padding: 0 0 6px 0;
+  box-shadow: 0 30px 60px -24px @shadow, 0 2px 0 alpha(@ink, 0.02);
+  margin: 6px 18px 30px 18px;
+}
+.chrome-head { padding: 16px 18px 14px 18px; }
+.chrome-title { font-size: 22px; font-style: italic; }
+.chrome-grid { padding: 10px; }
+.folio button.chrome-btn {
+  padding: 14px 4px 10px 4px;
+  border-radius: 10px;
+  min-height: 64px;
+}
+.folio button.chrome-btn .caption { font-size: 11px; color: @ink_2; }
+.folio button.chrome-btn.danger { color: @accent; }
+.folio button.chrome-btn.danger .caption { color: @accent; }
+.chrome-move { padding: 12px 18px 8px 18px; }
+
+.chrome-handle-hit { background: transparent; }
+.chrome-handle {
+  background: alpha(@ink, 0.55);
+  border-radius: 999px;
+  min-height: 5px;
+  box-shadow: 0 0 0 2px alpha(@paper, 0.55);
+}
+
+/* ── Notiziario ─────────────────────────────────────────────────────── */
+
+.shade-scrim { background: alpha(@ink, 0.22); }
+.shade-panel {
+  background: @paper;
+  border-bottom: 1px solid @rule_strong;
+  box-shadow: 0 30px 70px -30px @shadow;
+}
+.shade-left { padding: 34px 40px 28px 56px; }
+.shade-right { padding: 34px 56px 28px 36px; }
+.shade-time { font-size: 92px; letter-spacing: -0.04em; line-height: 0.95; }
+.shade-date { color: @ink_2; margin-bottom: 10px; }
+
+.folio button.qs-tile {
+  background: @paper_2;
+  border: 1px solid @rule;
+  padding: 14px 14px 12px 14px;
+  min-height: 86px;
+}
+.folio button.qs-tile.on {
+  background: @ink;
+  color: @paper;
+  border-color: @ink;
+}
+.folio button.qs-tile.on .qs-state { color: alpha(@paper, 0.7); }
+.qs-label { font-size: 13px; font-weight: 600; }
+.qs-state { font-size: 9px; }
+
+scale.qs-slider { padding: 10px 0; }
+scale.qs-slider trough {
+  margin: 0;
+  background: @rule;
+  min-height: 2px;
+  border-radius: 0;
+  border: none;
+}
+scale.qs-slider highlight {
+  margin: 0;
+  background: @ink;
+  min-height: 2px;
+  border-radius: 0;
+  border: none;
+}
+scale.qs-slider slider {
+  background: @paper;
+  border: 1.5px solid @ink;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 999px;
+  box-shadow: none;
+  margin: -11px;
+}
+
+.qs-media {
+  padding: 12px 14px;
+  border: 1px solid @rule;
+  border-radius: 10px;
+}
+.media-title { font-size: 20px; }
+.power-row { margin-top: 2px; }
+.folio button.power-btn { padding: 12px 4px; }
+.folio button.power-btn .caption { font-size: 11px; }
+
+/* Notifiche e lanci d'agenzia */
+.note-card {
+  background: @paper_2;
+  border: 1px solid @rule;
+  border-radius: 10px;
+  padding: 12px 14px 14px 14px;
+}
+.note-card.critical { border-left: 3px solid @accent; }
+.note-summary { font-size: 20px; line-height: 1.15; }
+.note-body { font-size: 13px; color: @ink_2; }
+.note-actions { margin-top: 6px; }
+.toasts { padding: 4px; }
+.toast-card {
+  background: @paper;
+  border-color: @rule_strong;
+  box-shadow: 0 22px 44px -22px @shadow;
+}
+
+/* Menu contestuali */
+popover.folio-menu > contents {
+  background: @paper;
+  color: @ink;
+  border: 1px solid @rule_strong;
+  border-radius: 12px;
+  padding: 10px 6px;
+  box-shadow: 0 24px 50px -24px @shadow;
+}
+.menu-title { font-size: 22px; padding: 4px 10px 2px 10px; }
+.menu-deck { padding: 0 10px 8px 10px; }
+popover.folio-menu separator.rule { margin: 6px 4px; }
+.folio-menu button.menu-item { padding: 10px 12px; }
+.folio-menu button.menu-item.danger { color: @accent; }
+.menu-label { font-size: 14px; }
+
+/* ── Copertina ──────────────────────────────────────────────────────── */
+
+.cover-paper { background: @paper; }
+.cover-grid { color: alpha(@ink, 0.045); }
+.cover-page { padding: 44px 64px 34px 64px; }
+.cover-story { padding: 0 0 0 24px; border-left: 1px solid @rule; margin-right: 72px; }
+.cover-story-kicker { color: @accent; }
+.cover-story-title { font-style: italic; color: @ink; line-height: 1.02; }
+.cover-story-deck { font-size: 14px; color: @ink_2; }
+.cover-masthead { color: @ink; letter-spacing: -0.04em; }
+.cover-issue, .cover-edition { color: @ink_2; }
+.cover-tagline { color: @accent; margin-top: 12px; }
+.cover-day { color: @ink; line-height: 0.82; }
+.cover-month { font-style: italic; color: @ink; }
+.cover-weekday { color: @ink_2; }
+.cover-foot { padding-top: 14px; }
+.cover-foot .kicker { color: @ink_2; }
+
+/* ── Impaginazione ──────────────────────────────────────────────────── */
+
+.layout-scrim { background: alpha(@paper, 0.55); }
+.layout-grid { color: @accent; }
+.layout-head {
+  background: @paper;
+  border: 1px solid @rule_strong;
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: 0 24px 50px -24px @shadow;
+}
+.layout-title { font-size: 34px; }
+.layout-block {
+  background: alpha(@accent, 0.10);
+  border: 1.5px dashed @accent;
+  border-radius: 12px;
+  color: @ink;
+  transition: background 120ms ease;
+}
+.layout-block.dragging {
+  background: alpha(@accent, 0.22);
+  border-style: solid;
+}
+.block-label { color: @ink; }
+.block-size { font-size: 10px; color: @ink_2; }
+.folio button.block-chip { padding: 4px; border-radius: 999px; }
