@@ -1,0 +1,12 @@
+/* FOLIO — app GTK3 (con il tema adw-gtk3, che usa gli stessi colori nominati
+   di libadwaita). GTK3 non conosce @media: l'edizione scura la sceglie
+   adw-gtk3-dark tramite gsettings (Folio lo fa al cambio di edizione). */
+
+@define-color accent_color #b23620;
+@define-color accent_bg_color #D4442A;
+@define-color accent_fg_color #FFFBF5;
+@define-color destructive_bg_color #D4442A;
+
+/* Bersagli più comodi per le dita. */
+button { min-height: 32px; }
+scrollbar slider { min-width: 6px; min-height: 6px; }

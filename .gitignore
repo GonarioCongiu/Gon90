@@ -1,14 +1,2 @@
-*.tar
-*.tar.*
-*.jar
-*.exe
-*.msi
-*.deb
-*.zip
-*.tgz
+/target
 *.log
-*.log.*
-*.sig
-
-pkg/
-src/

@@ -1,0 +1,18 @@
+/* ~/.config/folio/style.css — ritocchi personali (caricato per ultimo).
+   I colori simbolici disponibili: @paper @paper_2 @paper_3 @ink @ink_2
+   @ink_3 @accent @on_accent @rule @rule_strong @shadow @scrim.
+   Dopo una modifica: folio msg reload                                   */
+
+/* Esempio: testata più alta e titolo della finestra in tondo.
+.bar .masthead  { font-size: 28px; }
+.bar .bar-title { font-style: normal; }
+*/
+
+/* Esempio: tile con angoli vivi, alla Windows 8.
+.tile { border-radius: 0; }
+*/
+
+/* Esempio: copertina senza gabbia ma con filetto spesso.
+.cover-grid { color: transparent; }
+.cover-page separator.rule { min-height: 3px; background: @ink; }
+*/

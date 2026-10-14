@@ -1,0 +1,155 @@
+# ════════════════════════════════════════════════════════════════════
+#  FOLIO — ~/.config/folio/config.toml
+#  Ogni valore è facoltativo: cancella una riga e vale il predefinito.
+#  Dopo una modifica:  folio msg reload
+#  Le modifiche fatte col dito (impaginazione, widget, dock) vivono a parte
+#  in ~/.local/state/folio/state.toml e non toccano questo file.
+# ════════════════════════════════════════════════════════════════════
+
+[theme]
+# "light" (carta), "dark" (inchiostro) o "auto": edizione serale dalle 19 alle 7.
+mode = "auto"
+dark_from = 19
+dark_until = 7
+accent = "#D4442A"          # rosso tipografico. Alternative: "#1F3FBF" blu Klein, "#2F5D3A" verde bottiglia
+paper = "#F3F0E8"
+ink = "#141413"
+paper_dark = "#121211"
+ink_dark = "#ECE8DE"
+font_display = "Instrument Serif"
+font_text = "Inter"
+font_mono = "JetBrains Mono"
+radius = 10
+icons = "mono"              # "mono" = icone in bianco e nero, "color" = a colori
+scale = 1.0                 # ingrandisce griglia, dock e widget (es. 1.25 su schermi piccoli e densi)
+
+[bar]                       # la Testata
+masthead = "Folio"
+show_title = true           # titolo della finestra attiva al centro (toccalo → comandi finestra)
+show_seconds = false
+size = 44
+
+[dock]
+mode = "persistent"         # "persistent" (taskbar Android, riserva spazio) o "transient" (compare con lo swipe corto)
+icon_size = 52
+autohide_secs = 4
+show_running = true
+# ID dei file .desktop; con "a|b|c" vince il primo installato.
+pinned = [
+  "org.gnome.Nautilus.desktop|thunar.desktop|org.kde.dolphin.desktop",
+  "firefox.desktop|chromium.desktop|brave-browser.desktop|zen.desktop",
+  "kitty.desktop|Alacritty.desktop|foot.desktop|com.mitchellh.ghostty.desktop",
+  "org.gnome.Calendar.desktop",
+  "org.gnome.TextEditor.desktop|org.kde.kate.desktop|code.desktop",
+  "org.gnome.Settings.desktop|nwg-look.desktop",
+]
+
+[home]                      # l'Indice
+cell = 92                   # lato di una cella della gabbia
+gap = 12
+columns = 0                 # 0 = automatiche (sempre pari)
+notes_file = "~/Documenti/note.md"   # letto dal widget "Appunti"
+
+# Widget "In evidenza". size: small (1×1) · medium (2×2) · wide (4×2) · large (4×4)
+# style: paper · ink · accent
+# live: clock · calendar · weather · music · system · battery · disk · uptime
+#       windows · notes · network · plain (assente = scelto in base all'app)
+[[home.tiles]]
+app = "org.gnome.clocks.desktop|org.kde.kclock.desktop"
+live = "clock"
+size = "large"
+style = "ink"
+
+[[home.tiles]]
+app = "org.gnome.Calendar.desktop"
+live = "calendar"
+size = "medium"
+style = "paper"
+
+[[home.tiles]]
+app = "org.gnome.Weather.desktop"
+live = "weather"
+size = "medium"
+style = "paper"
+
+[[home.tiles]]
+live = "music"
+size = "wide"
+style = "accent"
+label = "Musica"
+
+[[home.tiles]]
+app = "org.gnome.SystemMonitor.desktop|btop.desktop|htop.desktop"
+live = "system"
+size = "wide"
+style = "paper"
+
+[[home.tiles]]
+app = "org.gnome.Nautilus.desktop|thunar.desktop|org.kde.dolphin.desktop"
+live = "disk"
+size = "medium"
+style = "paper"
+
+[[home.tiles]]
+app = "kitty.desktop|Alacritty.desktop|foot.desktop"
+live = "uptime"
+size = "medium"
+style = "ink"
+
+[[home.tiles]]
+app = "firefox.desktop|chromium.desktop|zen.desktop"
+live = "windows"
+size = "medium"
+style = "paper"
+
+[[home.tiles]]
+app = "org.gnome.TextEditor.desktop|org.kde.kate.desktop|code.desktop"
+live = "notes"
+size = "wide"
+style = "paper"
+
+[[home.tiles]]
+app = "org.gnome.Settings.desktop|nwg-look.desktop"
+live = "battery"
+size = "small"
+style = "paper"
+
+[cover]                     # la Copertina (sfondo)
+masthead = "FOLIO"
+tagline = "Periodico di ambiente desktop"
+show_grid = true            # gabbia a 12 colonne appena accennata
+# image = "~/Immagini/copertina.jpg"
+
+[chrome]                    # barre del titolo
+mode = "hyprbars"           # "hyprbars" (plugin), "native" (maniglia sopra la finestra attiva) o "off"
+bar_height = 34
+
+[gestures]                  # swipe dal bordo inferiore, come su Android
+dock_threshold = 0.08       # sotto l'8% dell'altezza: solo la Dock
+hold_ms = 220               # pausa prima del rilascio → Recenti
+recents_threshold = 0.55    # oltre il 55%: Recenti anche senza pausa
+
+[notifications]
+enabled = true              # disattiva se preferisci mako/swaync
+timeout_ms = 5000
+max_toasts = 3
+
+[osk]                       # tastiera a schermo
+enabled = true
+process = "wvkbd-mobintl"
+command = "wvkbd-mobintl --hidden -L 280 --fn 'Inter 18'"
+auto_show = true            # compare toccando un campo di testo di Folio col dito
+
+[weather]
+enabled = true
+location = ""               # vuoto = stimata; oppure "Milano", "Roma"…
+refresh_min = 30
+
+[commands]
+terminal = "kitty"
+lock = "loginctl lock-session"
+suspend = "systemctl suspend"
+reboot = "systemctl reboot"
+poweroff = "systemctl poweroff"
+logout = "command -v hyprshutdown >/dev/null && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"
+screenshot = "mkdir -p ~/Immagini/Schermate && grim ~/Immagini/Schermate/$(date +%Y-%m-%d_%H-%M-%S).png"
