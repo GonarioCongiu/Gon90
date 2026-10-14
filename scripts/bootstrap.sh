@@ -2,14 +2,14 @@
 # ════════════════════════════════════════════════════════════════════
 #  FOLIO — scarica (o aggiorna) il repository e avvia l'installer.
 #
-#    curl -fsSL https://raw.githubusercontent.com/GonarioCongiu/folio/main/scripts/bootstrap.sh | bash
+#    curl -fsSL https://raw.githubusercontent.com/GonarioCongiu/Gon90/main/scripts/bootstrap.sh | bash
 #    curl -fsSL …/bootstrap.sh | bash -s -- --check      # solo controlli
 #
 #  Le opzioni dopo `--` vengono passate a installer.sh.
 # ════════════════════════════════════════════════════════════════════
 set -Eeuo pipefail
 
-REPO="${FOLIO_REPO:-https://github.com/GonarioCongiu/folio.git}"
+REPO="${FOLIO_REPO:-https://github.com/GonarioCongiu/Gon90.git}"
 BRANCH="${FOLIO_BRANCH:-main}"
 DEST="${FOLIO_SRC:-$HOME/.local/src/folio}"
 
