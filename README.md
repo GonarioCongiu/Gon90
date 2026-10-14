@@ -56,11 +56,22 @@ Dopo l'installazione, `folio doctor` ripete i controlli dall'interno della sessi
 
 ## Installazione
 
+Con una riga (scarica in `~/.local/src/folio` e avvia l'installer):
+
 ```bash
-git clone <questo repository> folio && cd folio
-./installer.sh --check     # solo diagnosi
+curl -fsSL https://raw.githubusercontent.com/GonarioCongiu/folio/main/scripts/bootstrap.sh | bash
+```
+
+Oppure a mano:
+
+```bash
+git clone https://github.com/GonarioCongiu/folio.git
+cd folio
+./installer.sh --check     # solo diagnosi, non modifica nulla
 ./installer.sh             # controlli → piano → conferma → installazione
 ```
+
+Per aggiornare in seguito: rilancia la stessa riga (o `git pull && ./installer.sh`).
 
 L'installer:
 
